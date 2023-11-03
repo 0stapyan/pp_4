@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
+#include <dlfcn.h>
 
 class IReader{
 public:
@@ -24,3 +25,29 @@ public:
         return content;
     }
 };
+
+class IWriter{
+public:
+    virtual ~IWriter(){}
+    virtual void write(const std::string& filePath, const std::string& content) = 0;
+};
+
+class FileWriter: public IWriter{
+public:
+    void write(const std::string& filePath, const std::string& content) override{
+        std::ifstream infile(filePath);
+        if (infile.good()){
+            throw std::runtime_error("File already exists");
+        }
+
+        std::ofstream file(filePath, std::ios::binary);
+        if (!file.is_open()){
+            throw std::runtime_error("Unable to open the file");
+        }
+
+        file.write(content.c_str(), content.size());
+
+        file.close();
+    }
+};
+
