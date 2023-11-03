@@ -51,3 +51,26 @@ public:
     }
 };
 
+typedef void (*EncryptFunction)(char*, int);
+typedef void (*DecryptFunction)(char*, int);
+
+int main() {
+
+    void *library = dlopen("/Users/ostapturash/pp_4/caesar.dylib", RTLD_LAZY);
+
+    if (!library) {
+        std::cerr << "Unable to open the library" << dlerror() << std::endl;
+        return 1;
+    }
+
+    dlerror();
+
+    EncryptFunction encrypt = (EncryptFunction) dlsym(library, "encrypt");
+    DecryptFunction decrypt = (DecryptFunction) dlsym(library, "decrypt");
+
+    if (!encrypt || !decrypt) {
+        std::cerr << "Failed to load the function" << dlerror() << std::endl;
+        return 1;
+    }
+}
+
